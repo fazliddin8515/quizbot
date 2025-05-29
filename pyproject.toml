@@ -9,7 +9,12 @@ package-mode = false
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.11.12"
+mypy = "^1.16.0"
 
 [tool.ruff.lint]
 select = ["E", "F", "UP", "B", "SIM", "I"]
 ignore = ["F401"]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
