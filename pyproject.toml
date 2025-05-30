@@ -2,8 +2,20 @@
 name = "quizbot"
 version = "0.1.0"
 requires-python = ">=3.13"
-dependencies = [
-]
+dependencies = []
 
 [tool.poetry]
 package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.12"
+mypy = "^1.16.0"
+pre-commit = "^4.2.0"
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM", "I"]
+ignore = ["F401"]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
