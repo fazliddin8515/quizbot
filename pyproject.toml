@@ -16,6 +16,7 @@ package-mode = false
 ruff = "^0.11.12"
 mypy = "^1.16.0"
 pre-commit = "^4.2.0"
+alembic = "^1.16.1"
 
 [tool.ruff.lint]
 select = ["E", "F", "UP", "B", "SIM", "I"]
