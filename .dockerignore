@@ -1,0 +1,11 @@
+# from .gitignore
+.venv
+.ruff_cache
+.mypy_cache
+.env
+__pycache__
+
+.vscode
+.gitignore
+.pre-commit-config.yaml
+poety.toml
