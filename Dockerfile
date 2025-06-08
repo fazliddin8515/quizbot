@@ -6,4 +6,4 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 RUN poetry install --only main
 COPY quizbot ./quizbot
-CMD [ "poetry", "run", "pymon", "quizbot/run.py" ]
+CMD [ "poetry", "run", "python", "quizbot/run.py" ]
