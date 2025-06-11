@@ -3,4 +3,3 @@
 .mypy_cache
 .env
 __pycache__
-docker-compose.yaml
