@@ -70,9 +70,9 @@ class Admin(Base, TimestampMixin):
     __table_args__ = (UniqueConstraint("user_id", "channel_id"),)
 
     id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     channel_id: Mapped[int] = mapped_column(
-        ForeignKey("channel.id", ondelete="CASCADE")
+        ForeignKey("channels.id", ondelete="CASCADE")
     )
 
     user: Mapped["User"] = relationship(back_populates="admins")
@@ -89,7 +89,7 @@ class Quiz(Base, TimestampMixin):
     question: Mapped[str] = mapped_column(String(300))
     correct: Mapped[int] = mapped_column(SmallInteger)
     channel_id: Mapped[int] = mapped_column(
-        ForeignKey("channel.id", ondelete="CASCADE")
+        ForeignKey("channels.id", ondelete="CASCADE")
     )
 
     channel: Mapped["Channel"] = relationship(back_populates="quizzes")
@@ -111,7 +111,7 @@ class Option(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     option: Mapped[str] = mapped_column(String(100))
     order: Mapped[int] = mapped_column(SmallInteger)
-    quiz_id: Mapped[int] = mapped_column(ForeignKey("quiz.id", ondelete="CASCADE"))
+    quiz_id: Mapped[int] = mapped_column(ForeignKey("quizzes.id", ondelete="CASCADE"))
 
     quiz: Mapped["Quiz"] = relationship(back_populates="options")
 
