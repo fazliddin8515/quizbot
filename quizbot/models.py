@@ -27,7 +27,7 @@ class TimestampMixin:
 
 
 class User(Base, TimestampMixin):
-    __tablename__ = "user"
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=False)
     first_name: Mapped[str] = mapped_column(String(64))
@@ -46,7 +46,7 @@ class User(Base, TimestampMixin):
 
 
 class Channel(Base, TimestampMixin):
-    __tablename__ = "channel"
+    __tablename__ = "channels"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=False)
     title: Mapped[str] = mapped_column(String(255))
@@ -66,7 +66,7 @@ class Channel(Base, TimestampMixin):
 
 
 class Admin(Base, TimestampMixin):
-    __tablename__ = "admin"
+    __tablename__ = "admins"
     __table_args__ = (UniqueConstraint("user_id", "channel_id"),)
 
     id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
@@ -83,7 +83,7 @@ class Admin(Base, TimestampMixin):
 
 
 class Quiz(Base, TimestampMixin):
-    __tablename__ = "quiz"
+    __tablename__ = "quizzes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     question: Mapped[str] = mapped_column(String(300))
@@ -105,7 +105,7 @@ class Quiz(Base, TimestampMixin):
 
 
 class Option(Base, TimestampMixin):
-    __tablename__ = "option"
+    __tablename__ = "options"
     __table_args__ = (UniqueConstraint("quiz_id", "order"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

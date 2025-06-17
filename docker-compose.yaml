@@ -8,6 +8,15 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
 
+  migration:
+    build: .
+    command: poetry run alembic upgrade head
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      POSTGRES_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      - postgres
+
   app:
     build: .
     environment:
@@ -15,6 +24,7 @@ services:
       POSTGRES_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     depends_on:
       - postgres
+      - migration
 
 volumes:
   postgres:

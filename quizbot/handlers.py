@@ -2,8 +2,8 @@ from typing import Literal
 
 from aiogram import types
 from db import get_session
-from models import Channel
-from sqlalchemy import select
+from models import Admin, Channel
+from sqlalchemy import delete, select
 
 
 def check_status(
@@ -31,7 +31,17 @@ async def my_chat_member_handler(update: types.ChatMemberUpdated) -> None:
     async for session in get_session():
         find_channel = select(Channel).where(Channel.id == update.chat.id)
         channel = await session.scalar(find_channel)
+
         if is_added and not channel:
-            pass
+            new_channel = Channel(
+                id=update.chat.id,
+                title=update.chat.title,
+                username=update.chat.username,
+            )
+            session.add(new_channel)
+            await session.commit()
+
         if is_removed and channel:
-            pass
+            delete_admins = delete(Admin).where(Admin.channel_id == update.chat.id)
+            await session.execute(delete_admins)
+            await session.commit()
