@@ -7,4 +7,6 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 RUN poetry install --only main
 COPY quizbot ./quizbot
+COPY alembic ./alembic
+COPY alembic.ini ./
 CMD [ "poetry", "run", "python", "quizbot/run.py" ]
