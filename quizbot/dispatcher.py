@@ -1,11 +1,9 @@
-from aiogram import Dispatcher, types
+from aiogram import Dispatcher
 from aiogram.filters import CommandStart
+from handlers import my_chat_member_handler, start_handler
 
 dp = Dispatcher()
 
 
-async def start_handler(message: types.Message) -> None:
-    await message.answer("Hello World!")
-
-
 dp.message.register(start_handler, CommandStart())
+dp.my_chat_member.register(my_chat_member_handler)
