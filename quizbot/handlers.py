@@ -7,8 +7,8 @@ from enums import BotChangeType
 from helpers import (
     add_channel_admins,
     delete_channel_admins,
-    detect_user_change,
-    extract_user_new_status,
+    detect_bot_change,
+    extract_bot_new_status,
     upsert_channel,
 )
 
@@ -18,8 +18,8 @@ async def start_handler(message: types.Message) -> None:
 
 
 async def my_chat_member_handler(update: types.ChatMemberUpdated) -> None:
-    new_status = extract_user_new_status(update)
-    change_type = detect_user_change(new_status)
+    new_status = extract_bot_new_status(update)
+    change_type = detect_bot_change(new_status)
 
     async for session in get_session():
         channel = await upsert_channel(session, update.chat)
