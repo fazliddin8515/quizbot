@@ -1,52 +1,52 @@
-from enum import Enum
-from typing import Literal
-
 from aiogram import types
+from constants import BOT_STATUS_MAPPING, USER_STATUS_MAPPING
+from enums import (
+    BotChangeType,
+    BotMemberStatus,
+    UserChangeType,
+    UserMemberStatus,
+)
 from models import Admin, Channel, User
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class MemberStatus(str, Enum):
-    ADMIN = "administrator"
-    KICKED = "kicked"
-    LEFT = "left"
+def extract_user_new_status(update: types.ChatMemberUpdated) -> UserMemberStatus:
+    match update.new_chat_member:
+        case types.ChatMemberOwner():
+            return UserMemberStatus.OWNER
+        case types.ChatMemberAdministrator():
+            return UserMemberStatus.ADMIN
+        case types.ChatMemberMember():
+            return UserMemberStatus.MEMBER
+        case types.ChatMemberLeft():
+            return UserMemberStatus.LEFT
+        case types.ChatMemberBanned():
+            return UserMemberStatus.BANNED
+        case _:
+            raise ValueError(
+                f"Unknown chat member type: {type(update.new_chat_member)}"
+            )
 
 
-class MemberSource(str, Enum):
-    OLD = "old"
-    NEW = "new"
+def extract_bot_new_status(update: types.ChatMemberUpdated) -> BotMemberStatus:
+    match update.new_chat_member:
+        case types.ChatMemberAdministrator():
+            return BotMemberStatus.ADMIN
+        case types.ChatMemberLeft():
+            return BotMemberStatus.LEFT
+        case types.ChatMemberBanned():
+            return BotMemberStatus.BANNED
+        case _:
+            raise ValueError(f"Unknown bot member type: {type(update.new_chat_member)}")
 
 
-class ChangeType(str, Enum):
-    ADDED = "added"
-    REMOVED = "removed"
-    NONE = "none"
+def detect_user_change(new_status: UserMemberStatus) -> UserChangeType:
+    return USER_STATUS_MAPPING[new_status]
 
 
-def extract_status(
-    update: types.ChatMemberUpdated, source: MemberSource
-) -> MemberStatus:
-    chat_member = (
-        update.old_chat_member if source == MemberSource.OLD else update.new_chat_member
-    )
-
-    if isinstance(chat_member, types.ChatMemberAdministrator):
-        return MemberStatus.ADMIN
-    if isinstance(chat_member, types.ChatMemberBanned):
-        return MemberStatus.KICKED
-    if isinstance(chat_member, types.ChatMemberLeft):
-        return MemberStatus.LEFT
-
-    raise ValueError("Unknown chat member status")
-
-
-def detect_change(old: MemberStatus, new: MemberStatus) -> ChangeType:
-    if old in {MemberStatus.LEFT, MemberStatus.KICKED} and new == MemberStatus.ADMIN:
-        return ChangeType.ADDED
-    if old == MemberStatus.ADMIN and new in {MemberStatus.LEFT, MemberStatus.KICKED}:
-        return ChangeType.REMOVED
-    return ChangeType.NONE
+def detect_bot_change(new_status: BotMemberStatus) -> BotChangeType:
+    return BOT_STATUS_MAPPING[new_status]
 
 
 async def upsert_channel(session: AsyncSession, chat: types.Chat) -> Channel:
@@ -84,13 +84,15 @@ async def upsert_user(
 async def add_channel_admins(
     session: AsyncSession, channel: Channel, admins: list[types.ResultChatMemberUnion]
 ) -> None:
+    new_admins = []
     for admin_member in admins:
         if not admin_member.user.is_bot:
             user = await upsert_user(session, admin_member)
-            admin = Admin(user_id=user.id, channel_id=channel.id)
-            session.add(admin)
+            new_admin = Admin(user_id=user.id, channel_id=channel.id)
+            new_admins.append(new_admin)
+    session.add_all(new_admins)
 
 
-async def del_channel_admins(session: AsyncSession, channel: Channel) -> None:
+async def delete_channel_admins(session: AsyncSession, channel: Channel) -> None:
     stmt = delete(Admin).where(Admin.channel_id == channel.id)
     await session.execute(stmt)
